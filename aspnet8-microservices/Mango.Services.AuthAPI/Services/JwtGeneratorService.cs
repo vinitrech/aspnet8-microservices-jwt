@@ -22,7 +22,7 @@ namespace Mango.Services.AuthAPI.Services
                 new(JwtRegisteredClaimNames.Name, applicationUser.Name!)
             };
 
-            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role))); // When [Authorize(Role="Admin")] is used, for example, aspnetcore identity will look for the claim of type Role with value "Admin" to validate the permission in the token
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
