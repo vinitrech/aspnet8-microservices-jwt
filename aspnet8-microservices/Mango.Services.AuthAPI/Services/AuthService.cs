@@ -13,6 +13,32 @@ namespace Mango.Services.AuthAPI.Services
         IJwtGeneratorService jwtGeneratorService
     ) : IAuthService
     {
+        public async Task<bool> AssingRole(string? email, string? roleName)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(roleName))
+            {
+                return false;
+            }
+
+            var user = dbContext.Users.FirstOrDefault(u => string.Equals(u.Email!.ToLower(), email!.ToLower()));
+
+            if (user is null)
+            {
+                return false;
+            }
+
+            var role = await roleManager.RoleExistsAsync(roleName);
+
+            if (!role)
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName.ToUpper()));
+            }
+
+            await userManager.AddToRoleAsync(user, roleName);
+
+            return true;
+        }
+
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
             var user = dbContext.ApplicationUsers.FirstOrDefault(u => string.Equals(u.UserName!.ToLower(), loginRequestDto.UserName!.ToLower()));
