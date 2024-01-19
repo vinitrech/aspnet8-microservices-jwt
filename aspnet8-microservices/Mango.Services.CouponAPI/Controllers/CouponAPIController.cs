@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Mango.Services.AuthAPI.Constants;
 using Mango.Services.CouponAPI.Data;
 using Mango.Services.CouponAPI.Models;
 using Mango.Services.CouponAPI.Models.Dtos;
@@ -14,6 +15,7 @@ namespace Mango.Services.CouponAPI.Controllers
         private ResponseDto responseDto = new();
 
         [HttpGet]
+        [Authorize(Policy = RolePoliciesConstants.RequireAdminOrCustomerRoles)]
         public ResponseDto Get()
         {
             try
@@ -33,6 +35,7 @@ namespace Mango.Services.CouponAPI.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
+        [Authorize(Policy = RolePoliciesConstants.RequireAdminOrCustomerRoles)]
         public ResponseDto Get(int id)
         {
             try
@@ -53,6 +56,7 @@ namespace Mango.Services.CouponAPI.Controllers
 
         [HttpGet]
         [Route("{code:string}")]
+        [Authorize(Policy = RolePoliciesConstants.RequireAdminOrCustomerRoles)]
         public ResponseDto GetByCode(string code)
         {
             try
@@ -79,7 +83,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Policy = RolePoliciesConstants.RequireAdminRole)]
         public ResponseDto Post(CouponDto couponDto)
         {
             try
@@ -101,7 +105,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Policy = RolePoliciesConstants.RequireAdminRole)]
         public ResponseDto Put(CouponDto couponDto)
         {
             try
@@ -123,7 +127,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Policy = RolePoliciesConstants.RequireAdminRole)]
         public ResponseDto Delete(int id)
         {
             try

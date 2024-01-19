@@ -1,5 +1,7 @@
-﻿using Mango.Services.AuthAPI.Models.Dtos;
+﻿using Mango.Services.AuthAPI.Constants;
+using Mango.Services.AuthAPI.Models.Dtos;
 using Mango.Services.AuthAPI.Services.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mango.Services.AuthAPI.Controllers
@@ -45,6 +47,7 @@ namespace Mango.Services.AuthAPI.Controllers
         }
 
         [HttpPost("assign-role")]
+        [Authorize(Policy = RolePoliciesConstants.RequireAdminRole)]
         public async Task<IActionResult> AssignRole([FromBody] RegistrationRequestDto registrationRequestDto)
         {
             var assignRoleSuccessful = await authService.AssingRole(registrationRequestDto.Email, registrationRequestDto.Role);

@@ -1,4 +1,6 @@
+using Mango.Services.AuthAPI.Constants;
 using Mango.Services.AuthAPI.Data;
+using Mango.Services.AuthAPI.Enum;
 using Mango.Services.AuthAPI.Models;
 using Mango.Services.AuthAPI.Models.Configurations;
 using Mango.Services.AuthAPI.Services;
@@ -29,6 +31,10 @@ builder.Services.AddScoped<IJwtGeneratorService, JwtGeneratorService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(RolePoliciesConstants.RequireAdminRole, policy => policy.RequireRole(Role.Admin.ToString()))
+    .AddPolicy(RolePoliciesConstants.RequireAdminOrCustomerRoles, policy => policy.RequireRole(Role.Admin.ToString(), Role.Customer.ToString()));
 
 var app = builder.Build();
 

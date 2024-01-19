@@ -1,4 +1,5 @@
 ﻿using Mango.Services.AuthAPI.Data;
+using Mango.Services.AuthAPI.Enum;
 using Mango.Services.AuthAPI.Models;
 using Mango.Services.AuthAPI.Models.Dtos;
 using Mango.Services.AuthAPI.Services.IService;
@@ -13,9 +14,9 @@ namespace Mango.Services.AuthAPI.Services
         IJwtGeneratorService jwtGeneratorService
     ) : IAuthService
     {
-        public async Task<bool> AssingRole(string? email, string? roleName)
+        public async Task<bool> AssingRole(string? email, Role roleName)
         {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(roleName))
+            if (string.IsNullOrWhiteSpace(email))
             {
                 return false;
             }
@@ -27,14 +28,14 @@ namespace Mango.Services.AuthAPI.Services
                 return false;
             }
 
-            var role = await roleManager.RoleExistsAsync(roleName);
+            var role = await roleManager.RoleExistsAsync(roleName.ToString());
 
             if (!role)
             {
-                await roleManager.CreateAsync(new IdentityRole(roleName.ToUpper()));
+                await roleManager.CreateAsync(new IdentityRole(roleName.ToString().ToUpper()));
             }
 
-            await userManager.AddToRoleAsync(user, roleName);
+            await userManager.AddToRoleAsync(user, roleName.ToString());
 
             return true;
         }

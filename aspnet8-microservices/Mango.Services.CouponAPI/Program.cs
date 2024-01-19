@@ -1,3 +1,5 @@
+using Mango.Services.AuthAPI.Constants;
+using Mango.Services.AuthAPI.Enum;
 using Mango.Services.CouponAPI;
 using Mango.Services.CouponAPI.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -74,6 +76,10 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(RolePoliciesConstants.RequireAdminRole, policy => policy.RequireRole(Role.Admin.ToString()))
+    .AddPolicy(RolePoliciesConstants.RequireAdminOrCustomerRoles, policy => policy.RequireRole(Role.Admin.ToString(), Role.Customer.ToString()));
 
 var app = builder.Build();
 
