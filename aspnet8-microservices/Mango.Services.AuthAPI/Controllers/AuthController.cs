@@ -1,22 +1,47 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Mango.Services.AuthAPI.Models.Dtos;
+using Mango.Services.AuthAPI.Services.IService;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Mango.Services.AuthAPI.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController(IAuthService authService) : ControllerBase
     {
+        private readonly ResponseDto responseDto = new();
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register()
+        public async Task<IActionResult> Register([FromBody] RegistrationRequestDto registrationRequestDto)
         {
-            return Ok();
+            var errorMessage = await authService.Register(registrationRequestDto);
+
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                responseDto.Success = false;
+                responseDto.Message = errorMessage;
+
+                return BadRequest(responseDto);
+            }
+
+            return Ok(responseDto);
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login()
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
         {
-            return Ok();
+            var loginResponseDto = await authService.Login(loginRequestDto);
+
+            if (loginResponseDto?.User is null)
+            {
+                responseDto.Success = false;
+                responseDto.Message = "Invalid username/password";
+
+                return BadRequest(responseDto);
+            }
+
+            responseDto.Result = loginResponseDto;
+
+            return Ok(responseDto);
         }
     }
 }

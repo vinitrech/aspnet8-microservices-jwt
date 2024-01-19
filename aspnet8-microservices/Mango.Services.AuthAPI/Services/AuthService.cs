@@ -8,13 +8,48 @@ namespace Mango.Services.AuthAPI.Services
 {
     public class AuthService(AppDbContext dbContext, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : IAuthService
     {
-        public Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
+        public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
-            throw new NotImplementedException();
+            var user = dbContext.ApplicationUsers.FirstOrDefault(u => string.Equals(u.UserName!.ToLower(), loginRequestDto.UserName!.ToLower()));
+
+            if (user is null)
+            {
+                return new LoginResponseDto
+                {
+                    Token = string.Empty,
+                    User = null
+                };
+            }
+
+            var isValid = await userManager.CheckPasswordAsync(user!, loginRequestDto.Password!);
+
+            if (!isValid)
+            {
+                return new LoginResponseDto
+                {
+                    Token = string.Empty,
+                    User = null
+                };
+            }
+
+            var userDto = new UserDto
+            {
+                Email = user.Email,
+                Id = user.Id,
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber
+            };
+
+            return new LoginResponseDto
+            {
+                Token = string.Empty,
+                User = userDto
+            };
         }
 
-        public async Task<UserDto> Register(RegistrationRequestDto registrationRequestDto)
+        public async Task<string?> Register(RegistrationRequestDto registrationRequestDto)
         {
+            var errorMessage = string.Empty;
             var appUser = new ApplicationUser
             {
                 UserName = registrationRequestDto.Email,
@@ -28,24 +63,17 @@ namespace Mango.Services.AuthAPI.Services
             {
                 var result = await userManager.CreateAsync(appUser, registrationRequestDto.Password);
 
-                if (result.Succeeded)
+                if (!result.Succeeded)
                 {
-                    var userToReturn = dbContext.ApplicationUsers.First(u => u.UserName!.Equals(registrationRequestDto.Email));
-                    var userDto = new UserDto
-                    {
-                        Email = userToReturn.Email,
-                        Id = userToReturn.Id,
-                        Name = userToReturn.Name,
-                        PhoneNumber = userToReturn.PhoneNumber
-                    };
+                    errorMessage = result.Errors.FirstOrDefault()?.Description;
                 }
             }
             catch (Exception e)
             {
-                //TODO: Implement
+                errorMessage = e.Message;
             }
 
-            return new();
+            return errorMessage;
         }
     }
 }
